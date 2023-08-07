@@ -1,0 +1,458 @@
+{
+	"info": {
+		"_postman_id": "f77a0892-557c-4821-9f41-ec9a7b6b967a",
+		"name": "D4 interactive",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7484459"
+	},
+	"item": [
+		{
+			"name": "Mongodb-app",
+			"item": [
+				{
+					"name": "Auth",
+					"item": [
+						{
+							"name": "Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Parse the response body as JSON",
+											"responseBody = pm.response.json();",
+											"",
+											"// Set the environment variable",
+											"pm.environment.set(\"token\", responseBody?.data?.token ?? null);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "email",
+											"value": "faisal@example2.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "newpassword",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{pretty}}/api/login",
+									"host": [
+										"{{pretty}}"
+									],
+									"path": [
+										"api",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{pretty}}/api/logout",
+									"host": [
+										"{{pretty}}"
+									],
+									"path": [
+										"api",
+										"logout"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "index",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{pretty}}/api/users",
+									"host": [
+										"{{pretty}}"
+									],
+									"path": [
+										"api",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Parse the response body as JSON",
+											"responseBody = pm.response.json();",
+											"",
+											"// Set the environment variable",
+											"pm.environment.set(\"latestUserId\", responseBody?.data?._id ?? '');"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Faisal Ashfaq",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "faisal@example2.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "12345678",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{pretty}}/api/users",
+									"host": [
+										"{{pretty}}"
+									],
+									"path": [
+										"api",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Show",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{pretty}}/api/users/{{latestUserId}}",
+									"host": [
+										"{{pretty}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"{{latestUserId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "_method",
+											"value": "PUT",
+											"type": "text"
+										},
+										{
+											"key": "name",
+											"value": "Faisal Ashfaq updated.",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "faisal@example2.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "newpassword",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{pretty}}/api/users/{{latestUserId}}",
+									"host": [
+										"{{pretty}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"{{latestUserId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Posts",
+					"item": [
+						{
+							"name": "index",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{pretty}}/api/posts",
+									"host": [
+										"{{pretty}}"
+									],
+									"path": [
+										"api",
+										"posts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Parse the response body as JSON",
+											"responseBody = pm.response.json();",
+											"",
+											"// Set the environment variable",
+											"pm.environment.set(\"latestPostId\", responseBody.data._id);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "body",
+											"value": "Faisal is a good boy.",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{pretty}}/api/posts",
+									"host": [
+										"{{pretty}}"
+									],
+									"path": [
+										"api",
+										"posts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Show",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{pretty}}/api/posts/{{latestPostId}}",
+									"host": [
+										"{{pretty}}"
+									],
+									"path": [
+										"api",
+										"posts",
+										"{{latestPostId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "_method",
+											"value": "PUT",
+											"type": "text"
+										},
+										{
+											"key": "body",
+											"value": "This is the updated body of the post {{latestPostId}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{pretty}}/api/posts/{{latestPostId}}",
+									"host": [
+										"{{pretty}}"
+									],
+									"path": [
+										"api",
+										"posts",
+										"{{latestPostId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
