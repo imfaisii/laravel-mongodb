@@ -2,67 +2,44 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Posts\DeletePostAction;
+use App\Actions\Posts\FindPostAction;
+use App\Actions\Posts\ListPostAction;
+use App\Actions\Posts\StorePostAction;
+use App\Common\BaseJsonResource;
 use App\Http\Requests\StorePostRequest;
-use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
-use App\Services\PostService;
-use App\Traits\HasApiResponses;
-use Exception;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+use function App\Helpers\null_resource;
 
 class PostController extends Controller
 {
-    use HasApiResponses;
-
-    public function __construct(protected PostService $postService)
+    public function index(ListPostAction $action): JsonResource
     {
-        //
-    }
-    public function index()
-    {
-        try {
-            $posts = $this->postService->index();
+        $action->enableQueryBuilder();
 
-            return $this->success(data: $posts);
-        } catch (Exception $exception) {
-            return $this->exception(exception: $exception);
-        }
+        return $action->resourceCollection($action->listOrPaginate());
     }
 
-    public function store(StorePostRequest $request)
+    public function store(StorePostRequest $request, StorePostAction $action): JsonResource
     {
-        try {
-            $post = $this->postService->store(data: $request->validated());
+        $user = $action->create($request->validated());
 
-            return $this->success(data: $post);
-        } catch (Exception $exception) {
-            return $this->exception(exception: $exception);
-        }
+        return $action->individualResource($user);
     }
 
-    public function show(Post $post)
+    public function show(string $id, FindPostAction $action): BaseJsonResource
     {
-        return $this->success(data: $post);
+        $action->enableQueryBuilder();
+
+        return $action->individualResource($action->findOrFail($id));
     }
 
-    public function update(UpdatePostRequest $request, Post $post)
+    public function destroy(Post $post, DeletePostAction $action): BaseJsonResource
     {
-        try {
-            $post = $this->postService->update(post: $post, data: $request->validated());
+        $action->delete($post);
 
-            return $this->success(data: $post);
-        } catch (Exception $exception) {
-            return $this->exception(exception: $exception);
-        }
-    }
-
-    public function destroy(Post $post)
-    {
-        try {
-            $this->postService->delete(post: $post);
-
-            return $this->success(message: 'Post was deleted successfully.');
-        } catch (Exception $exception) {
-            return $this->exception(exception: $exception);
-        }
+        return null_resource();
     }
 }

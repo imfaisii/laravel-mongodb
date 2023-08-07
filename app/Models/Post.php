@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
+use App\Common\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Jenssegers\Mongodb\Eloquent\Model;
 
-class Post extends Model
+class Post extends BaseModel
 {
     use HasFactory;
-
-    protected $collection = 'posts';
 
     protected $fillable = ['body', 'user_id'];
 

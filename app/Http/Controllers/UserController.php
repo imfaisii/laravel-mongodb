@@ -2,68 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
+use App\Actions\Users\DeleteUserAction;
+use App\Actions\Users\FindUserAction;
+use App\Actions\Users\ListUserAction;
+use App\Actions\Users\StoreUserAction;
+use App\Common\BaseJsonResource;
 use App\Models\User;
-use App\Services\UserService;
-use App\Traits\HasApiResponses;
-use Exception;
+use App\Http\Requests\StoreUserRequest;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+use function App\Helpers\null_resource;
 
 class UserController extends Controller
 {
-    use HasApiResponses;
-
-    public function __construct(protected UserService $userService)
+    public function index(ListUserAction $action): JsonResource
     {
-        //
+        $action->enableQueryBuilder();
+
+        return $action->resourceCollection($action->listOrPaginate());
     }
 
-    public function index()
+    public function store(StoreUserRequest $request, StoreUserAction $action): JsonResource
     {
-        try {
-            $users = $this->userService->index();
+        $user = $action->create($request->validated());
 
-            return $this->success(data: $users);
-        } catch (Exception $exception) {
-            return $this->exception(exception: $exception);
-        }
+        return $action->individualResource($user);
     }
 
-    public function store(StoreUserRequest $request)
+    public function show(string $id, FindUserAction $action): BaseJsonResource
     {
-        try {
-            $user = $this->userService->store(data: $request->validated());
+        $action->enableQueryBuilder();
 
-            return $this->success(data: $user);
-        } catch (Exception $exception) {
-            return $this->exception(exception: $exception);
-        }
+        return $action->individualResource($action->findOrFail($id));
     }
 
-    public function show(User $user)
+    public function destroy(User $user, DeleteUserAction $action): BaseJsonResource
     {
-        return $this->success(data: $user);
-    }
+        $action->delete($user);
 
-    public function update(UpdateUserRequest $request, User $user)
-    {
-        try {
-            $user = $this->userService->update(user: $user, data: $request->validated());
-
-            return $this->success(data: $user);
-        } catch (Exception $exception) {
-            return $this->exception(exception: $exception);
-        }
-    }
-
-    public function destroy(User $user)
-    {
-        try {
-            $this->userService->delete(user: $user);
-
-            return $this->success(message: 'Post was deleted successfully.');
-        } catch (Exception $exception) {
-            return $this->exception(exception: $exception);
-        }
+        return null_resource();
     }
 }

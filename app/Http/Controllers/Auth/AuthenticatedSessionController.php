@@ -2,46 +2,52 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\Auth\CreateTokenAction;
+use App\Actions\Users\FindUserAction;
+use App\Common\BaseJsonResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Traits\HasApiResponses;
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
+
+use function App\Helpers\null_resource;
 
 class AuthenticatedSessionController extends Controller
 {
-    use HasApiResponses;
-
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): JsonResponse
+    public function store(LoginRequest $request, CreateTokenAction $action): JsonResponse
     {
-        try {
-            $request->authenticate();
+        $request->authenticate();
 
-            $token = $request->user()->createToken('token-name')->plainTextToken;
-
-            return $this->success(data: ['type' => 'bearer', 'token' => $token]);
-        } catch (Exception $exception) {
-            return $this->exception(exception: $exception);
+        if (!auth()->attempt($request->validated())) {
+            return response()->json(['data' => null, 'status' => 'error', 'message' => 'Invalid credentials.']);
         }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'type' => 'bearer',
+                'token' => $action->run(user: $request->user())
+            ]
+        ]);
     }
 
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): JsonResponse
+    public function destroy(Request $request): BaseJsonResource
     {
-        try {
-            $request->user()->tokens()->delete();
+        $request->user()->tokens()->delete();
 
-            return $this->success(message: "User logged out successfully.");
-        } catch (Exception $exception) {
-            return $this->exception(exception: $exception);
-        }
+        return null_resource();
+    }
+
+    public function getProfile(FindUserAction $action)
+    {
+        $action->enableQueryBuilder();
+
+        return $action->individualResource($action->findOrFail(auth()->id()));
     }
 }
